@@ -1,0 +1,25 @@
+# OS
+.DS_Store
+
+# Dependencies
+node_modules/
+vendor/
+
+# Environment
+.env
+*.sqlite
+
+# Build
+dist/
+
+# IDE
+.idea/
+.vscode/
+
+# PHP
+storage/*.key
+
+# Python
+__pycache__/
+venv/
+.venv/
