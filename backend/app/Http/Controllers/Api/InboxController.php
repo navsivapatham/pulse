@@ -39,6 +39,14 @@ class InboxController extends BaseApiController
         return $this->success($item, 'Captured', 201);
     }
 
+    public function destroy(Request $request, int $id): JsonResponse
+    {
+        $item = InboxItem::where('user_id', $request->user()->id)->findOrFail($id);
+        $item->delete();
+
+        return $this->success(null, 'Deleted');
+    }
+
     public function review(Request $request, int $id): JsonResponse
     {
         $item = InboxItem::where('user_id', $request->user()->id)->findOrFail($id);
@@ -47,6 +55,7 @@ class InboxController extends BaseApiController
             'action' => 'required|in:convert_routine,convert_task,keep,dismiss',
             'title' => 'required_if:action,convert_routine,convert_task|string|max:255',
             'cadence' => 'required_if:action,convert_routine|in:daily,weekly,monthly',
+            'scheduled_time' => 'nullable|date_format:H:i',
             'due_date' => 'nullable|date',
         ]);
 
@@ -65,6 +74,7 @@ class InboxController extends BaseApiController
             'title' => $data['title'],
             'description' => $item->body,
             'cadence' => $data['cadence'],
+            'scheduled_time' => $data['scheduled_time'] ?? null,
         ]);
 
         $item->update([

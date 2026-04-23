@@ -13,6 +13,8 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/auth-user', [AuthController::class, 'getUser']);
+    Route::put('/profile', [AuthController::class, 'updateProfile']);
+    Route::put('/password', [AuthController::class, 'changePassword']);
 
     Route::get('/routines', [RoutineController::class, 'index']);
     Route::post('/routines', [RoutineController::class, 'store']);
@@ -25,6 +27,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/inbox', [InboxController::class, 'index']);
     Route::post('/inbox', [InboxController::class, 'store']);
     Route::post('/inbox/{id}/review', [InboxController::class, 'review']);
+    Route::delete('/inbox/{id}', [InboxController::class, 'destroy']);
 
     Route::get('/tasks', [TaskController::class, 'index']);
     Route::post('/tasks', [TaskController::class, 'store']);

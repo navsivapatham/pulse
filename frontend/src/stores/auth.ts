@@ -30,6 +30,17 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
+  async function updateProfile(name: string, email: string) {
+    const { data } = await api.put('/profile', { name, email })
+    user.value = data.data
+    return data
+  }
+
+  async function changePassword(current_password: string, password: string, password_confirmation: string) {
+    const { data } = await api.put('/password', { current_password, password, password_confirmation })
+    return data
+  }
+
   function logout() {
     api.post('/logout').catch(() => {})
     token.value = null
@@ -37,5 +48,5 @@ export const useAuthStore = defineStore('auth', () => {
     localStorage.removeItem('auth_token')
   }
 
-  return { user, token, isAuthenticated, login, register, fetchUser, logout }
+  return { user, token, isAuthenticated, login, register, fetchUser, updateProfile, changePassword, logout }
 })

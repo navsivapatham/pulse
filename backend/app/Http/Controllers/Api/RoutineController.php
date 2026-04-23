@@ -50,6 +50,7 @@ class RoutineController extends BaseApiController
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'cadence' => 'required|in:daily,weekly,monthly',
+            'scheduled_time' => 'nullable|date_format:H:i',
             'color' => 'nullable|string|max:7',
             'icon' => 'nullable|string|max:50',
         ]);
@@ -81,6 +82,7 @@ class RoutineController extends BaseApiController
             'title' => 'sometimes|string|max:255',
             'description' => 'nullable|string',
             'cadence' => 'sometimes|in:daily,weekly,monthly',
+            'scheduled_time' => 'nullable|date_format:H:i',
             'is_active' => 'sometimes|boolean',
             'sort_order' => 'sometimes|integer',
             'color' => 'nullable|string|max:7',

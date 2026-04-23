@@ -19,8 +19,18 @@ const greeting = computed(() => {
 })
 
 const dailyRoutines = computed(() =>
-  routinesStore.routines.filter((r) => r.cadence === 'daily' && r.is_active)
+  routinesStore.routines
+    .filter((r) => r.cadence === 'daily' && r.is_active)
+    .sort((a, b) => (a.scheduled_time || '99:99').localeCompare(b.scheduled_time || '99:99'))
 )
+
+function formatTime(time: string | null): string {
+  if (!time) return ''
+  const [h, m] = time.split(':').map(Number)
+  const suffix = h >= 12 ? 'PM' : 'AM'
+  const hour = h % 12 || 12
+  return `${hour}:${m.toString().padStart(2, '0')} ${suffix}`
+}
 
 const completedCount = computed(() => dailyRoutines.value.filter((r) => r.is_completed_today).length)
 const totalCount = computed(() => dailyRoutines.value.length)
@@ -101,6 +111,7 @@ onMounted(async () => {
           <Circle v-else class="w-5 h-5 text-muted-foreground flex-shrink-0" />
           <span class="flex-1 text-sm font-medium" :class="routine.is_completed_today ? 'text-muted-foreground line-through' : 'text-foreground'">
             {{ routine.title }}
+            <span v-if="routine.scheduled_time" class="text-xs text-muted-foreground font-normal ml-1">{{ formatTime(routine.scheduled_time) }}</span>
           </span>
           <span v-if="routine.streak?.current_streak" class="flex items-center gap-1 text-xs text-orange-400">
             <Flame class="w-3 h-3" />

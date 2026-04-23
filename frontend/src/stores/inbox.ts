@@ -47,5 +47,10 @@ export const useInboxStore = defineStore('inbox', () => {
     return data.data
   }
 
-  return { items, loading, pendingCount, fetch, capture, review }
+  async function remove(id: number) {
+    await api.delete(`/inbox/${id}`)
+    items.value = items.value.filter((i) => i.id !== id)
+  }
+
+  return { items, loading, pendingCount, fetch, capture, review, remove }
 })

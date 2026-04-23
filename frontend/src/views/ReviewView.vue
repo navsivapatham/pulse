@@ -12,12 +12,14 @@ const showConvertForm = ref(false)
 const convertType = ref<'routine' | 'task'>('routine')
 const formTitle = ref('')
 const formCadence = ref('daily')
+const formTime = ref('')
 const processing = ref(false)
 
 function startConvert(type: 'routine' | 'task') {
   convertType.value = type
   formTitle.value = current.value?.body?.slice(0, 80) ?? ''
   formCadence.value = 'daily'
+  formTime.value = ''
   showConvertForm.value = true
 }
 
@@ -29,6 +31,7 @@ async function submitConvert() {
       await inboxStore.review(current.value.id, 'convert_routine', {
         title: formTitle.value,
         cadence: formCadence.value,
+        scheduled_time: formTime.value || null,
       })
     } else {
       await inboxStore.review(current.value.id, 'convert_task', {
@@ -105,16 +108,26 @@ onMounted(() => inboxStore.fetch('pending'))
             class="w-full px-3 py-2 rounded-md border border-input bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring"
           />
         </div>
-        <div v-if="convertType === 'routine'" class="space-y-2">
-          <label class="text-sm font-medium text-foreground">Cadence</label>
-          <select
-            v-model="formCadence"
-            class="w-full px-3 py-2 rounded-md border border-input bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-          >
-            <option value="daily">Daily</option>
-            <option value="weekly">Weekly</option>
-            <option value="monthly">Monthly</option>
-          </select>
+        <div v-if="convertType === 'routine'" class="flex gap-3">
+          <div class="space-y-2 flex-1">
+            <label class="text-sm font-medium text-foreground">Cadence</label>
+            <select
+              v-model="formCadence"
+              class="w-full px-3 py-2 rounded-md border border-input bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+            >
+              <option value="daily">Daily</option>
+              <option value="weekly">Weekly</option>
+              <option value="monthly">Monthly</option>
+            </select>
+          </div>
+          <div class="space-y-2 flex-1">
+            <label class="text-sm font-medium text-foreground">Time</label>
+            <input
+              v-model="formTime"
+              type="time"
+              class="w-full px-3 py-2 rounded-md border border-input bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+            />
+          </div>
         </div>
         <div class="flex gap-2">
           <button @click="submitConvert" :disabled="processing || !formTitle.trim()" class="px-4 py-2 rounded-md bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 disabled:opacity-50">

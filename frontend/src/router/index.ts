@@ -11,7 +11,9 @@ const router = createRouter({
     { path: '/inbox', name: 'inbox', component: () => import('@/views/InboxView.vue'), meta: { auth: true } },
     { path: '/review', name: 'review', component: () => import('@/views/ReviewView.vue'), meta: { auth: true } },
     { path: '/routines', name: 'routines', component: () => import('@/views/RoutinesView.vue'), meta: { auth: true } },
+    { path: '/tasks', name: 'tasks', component: () => import('@/views/TasksView.vue'), meta: { auth: true } },
     { path: '/stats', name: 'stats', component: () => import('@/views/StatsView.vue'), meta: { auth: true } },
+    { path: '/profile', name: 'profile', component: () => import('@/views/ProfileView.vue'), meta: { auth: true } },
   ],
 })
 

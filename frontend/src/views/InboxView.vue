@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useInboxStore, type InboxItem } from '@/stores/inbox'
-import { Plus, Clock, CheckCircle2, X, RotateCcw } from 'lucide-vue-next'
+import { Plus, Clock, CheckCircle2, X, RotateCcw, Trash2 } from 'lucide-vue-next'
 import { formatDistanceToNow } from 'date-fns'
 
 const inboxStore = useInboxStore()
@@ -85,6 +85,9 @@ onMounted(() => {
         <span class="text-xs px-2 py-0.5 rounded-full border border-border text-muted-foreground capitalize flex-shrink-0">
           {{ item.status }}
         </span>
+        <button @click.stop="inboxStore.remove(item.id)" class="text-muted-foreground hover:text-destructive transition-colors flex-shrink-0">
+          <Trash2 class="w-3.5 h-3.5" />
+        </button>
       </div>
     </div>
 

@@ -18,6 +18,7 @@ class Routine extends Model
         'title',
         'description',
         'cadence',
+        'scheduled_time',
         'is_active',
         'sort_order',
         'color',

@@ -5,10 +5,11 @@ import { useAuthStore } from '@/stores/auth'
 
 const router = useRouter()
 const auth = useAuthStore()
-const email = ref('nav@pulse.test')
-const password = ref('password')
+const email = ref('')
+const password = ref('')
 const error = ref('')
 const loading = ref(false)
+const showReset = ref(false)
 
 async function submit() {
   error.value = ''
@@ -46,7 +47,10 @@ async function submit() {
         </div>
 
         <div class="space-y-2">
-          <label class="text-sm font-medium text-foreground">Password</label>
+          <div class="flex items-center justify-between">
+            <label class="text-sm font-medium text-foreground">Password</label>
+            <button type="button" @click="showReset = true" class="text-xs text-primary hover:underline">Forgot password?</button>
+          </div>
           <input
             v-model="password"
             type="password"
@@ -67,6 +71,15 @@ async function submit() {
       <p class="text-center text-sm text-muted-foreground">
         No account? <router-link to="/register" class="text-primary hover:underline">Sign up</router-link>
       </p>
+
+      <div v-if="showReset" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4" @click.self="showReset = false">
+        <div class="bg-card border border-border rounded-lg p-6 max-w-sm w-full space-y-3">
+          <h2 class="text-base font-semibold text-foreground">Reset password</h2>
+          <p class="text-sm text-muted-foreground">SSH into the server and run:</p>
+          <code class="block text-xs bg-muted/50 text-foreground px-3 py-2 rounded-md font-mono">php artisan user:reset-password your@email.com newpassword</code>
+          <button @click="showReset = false" class="w-full py-2 px-4 rounded-md bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors">Got it</button>
+        </div>
+      </div>
     </div>
   </div>
 </template>

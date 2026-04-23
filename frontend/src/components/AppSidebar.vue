@@ -7,6 +7,7 @@ import {
   Inbox,
   ListChecks,
   Target,
+  SquareCheckBig,
   BarChart3,
   LogOut,
 } from 'lucide-vue-next'
@@ -21,6 +22,7 @@ const navItems = [
   { name: 'Inbox', path: '/inbox', icon: Inbox },
   { name: 'Review', path: '/review', icon: ListChecks },
   { name: 'Routines', path: '/routines', icon: Target },
+  { name: 'Tasks', path: '/tasks', icon: SquareCheckBig },
   { name: 'Stats', path: '/stats', icon: BarChart3 },
 ]
 
@@ -62,11 +64,13 @@ function logout() {
 
     <div class="p-3 border-t border-border">
       <div class="flex items-center gap-3 px-3 py-2">
-        <div class="w-7 h-7 rounded-full bg-primary/15 flex items-center justify-center text-xs font-semibold text-primary">
-          {{ auth.user?.name?.[0]?.toUpperCase() ?? '?' }}
-        </div>
-        <span class="text-sm font-medium text-foreground flex-1 truncate">{{ auth.user?.name }}</span>
-        <button @click="logout" class="text-muted-foreground hover:text-foreground transition-colors">
+        <router-link to="/profile" class="flex items-center gap-3 flex-1 min-w-0 hover:opacity-80 transition-opacity">
+          <div class="w-7 h-7 rounded-full bg-primary/15 flex items-center justify-center text-xs font-semibold text-primary shrink-0">
+            {{ auth.user?.name?.[0]?.toUpperCase() ?? '?' }}
+          </div>
+          <span class="text-sm font-medium text-foreground truncate">{{ auth.user?.name }}</span>
+        </router-link>
+        <button @click="logout" class="text-muted-foreground hover:text-foreground transition-colors shrink-0">
           <LogOut class="w-4 h-4" />
         </button>
       </div>

@@ -13,6 +13,7 @@ const form = ref({
   title: '',
   description: '',
   cadence: 'daily' as 'daily' | 'weekly' | 'monthly',
+  scheduled_time: '' as string,
   color: '#6366F1',
 })
 
@@ -21,9 +22,17 @@ const filtered = computed(() => {
   return store.routines.filter((r) => r.cadence === activeTab.value)
 })
 
+function formatTime(time: string | null): string {
+  if (!time) return ''
+  const [h, m] = time.split(':').map(Number)
+  const suffix = h >= 12 ? 'PM' : 'AM'
+  const hour = h % 12 || 12
+  return `${hour}:${m.toString().padStart(2, '0')} ${suffix}`
+}
+
 function openCreate() {
   editing.value = null
-  form.value = { title: '', description: '', cadence: 'daily', color: '#6366F1' }
+  form.value = { title: '', description: '', cadence: 'daily', scheduled_time: '', color: '#6366F1' }
   showForm.value = true
 }
 
@@ -33,16 +42,18 @@ function openEdit(routine: Routine) {
     title: routine.title,
     description: routine.description || '',
     cadence: routine.cadence,
+    scheduled_time: routine.scheduled_time || '',
     color: routine.color || '#6366F1',
   }
   showForm.value = true
 }
 
 async function submit() {
+  const payload = { ...form.value, scheduled_time: form.value.scheduled_time || null }
   if (editing.value) {
-    await store.update(editing.value.id, form.value)
+    await store.update(editing.value.id, payload)
   } else {
-    await store.create(form.value)
+    await store.create(payload)
   }
   showForm.value = false
 }
@@ -107,7 +118,11 @@ onMounted(() => store.fetch())
         <div class="w-3 h-3 rounded-full flex-shrink-0" :style="{ backgroundColor: routine.color || '#6366F1' }" />
         <div class="flex-1 min-w-0">
           <p class="text-sm font-medium text-foreground truncate">{{ routine.title }}</p>
-          <p v-if="routine.description" class="text-xs text-muted-foreground truncate">{{ routine.description }}</p>
+          <div class="flex items-center gap-2">
+            <p v-if="routine.scheduled_time" class="text-xs text-muted-foreground">{{ formatTime(routine.scheduled_time) }}</p>
+            <span v-if="routine.scheduled_time && routine.description" class="text-xs text-muted-foreground/40">·</span>
+            <p v-if="routine.description" class="text-xs text-muted-foreground truncate">{{ routine.description }}</p>
+          </div>
         </div>
         <span class="text-xs px-2 py-0.5 rounded-full font-medium" :class="cadenceBadgeColor[routine.cadence]">
           {{ routine.cadence }}
@@ -154,6 +169,10 @@ onMounted(() => store.fetch())
                 <option value="weekly">Weekly</option>
                 <option value="monthly">Monthly</option>
               </select>
+            </div>
+            <div class="space-y-2 flex-1">
+              <label class="text-sm font-medium text-foreground">Time</label>
+              <input v-model="form.scheduled_time" type="time" class="w-full px-3 py-2 rounded-md border border-input bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
             </div>
             <div class="space-y-2">
               <label class="text-sm font-medium text-foreground">Color</label>
