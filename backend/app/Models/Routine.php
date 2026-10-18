@@ -19,6 +19,7 @@ class Routine extends Model
         'description',
         'cadence',
         'scheduled_time',
+        'checkin_time',
         'weekday',
         'month_day',
         'is_active',
@@ -42,6 +43,11 @@ class Routine extends Model
     public function completions(): HasMany
     {
         return $this->hasMany(RoutineCompletion::class);
+    }
+
+    public function messages(): HasMany
+    {
+        return $this->hasMany(RoutineMessage::class);
     }
 
     public function streak(): HasOne

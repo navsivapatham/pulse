@@ -17,9 +17,8 @@ class RoutineCompletion extends Model
         'notes',
     ];
 
-    protected $casts = [
-        'completed_date' => 'date',
-    ];
+    // No 'date' cast: Eloquent would store '2026-10-18 00:00:00', which never equals the
+    // plain 'Y-m-d' strings every query (and reminder.py) compares against.
 
     public function routine(): BelongsTo
     {

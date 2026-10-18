@@ -67,6 +67,9 @@ return [
 
     'timezone' => 'UTC',
 
+    // Where "today" is decided (completions, streaks, stats). Storage stays UTC.
+    'user_timezone' => env('APP_USER_TIMEZONE', 'UTC'),
+
     /*
     |--------------------------------------------------------------------------
     | Application Locale Configuration

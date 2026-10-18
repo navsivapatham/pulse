@@ -29,7 +29,8 @@ class StreakService
 
     private function calculateCurrentStreak(\Illuminate\Support\Collection $dates, Cadence $cadence): int
     {
-        $today = Carbon::today();
+        // Local calendar date, at UTC midnight like the parsed completion dates.
+        $today = Carbon::parse(Carbon::today(config('app.user_timezone'))->toDateString());
         $streak = 0;
 
         foreach ($dates as $date) {

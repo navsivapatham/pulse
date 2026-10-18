@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\InboxController;
 use App\Http\Controllers\Api\RoutineController;
+use App\Http\Controllers\Api\RoutineMessageController;
 use App\Http\Controllers\Api\StatsController;
 use App\Http\Controllers\Api\TaskController;
 use Illuminate\Support\Facades\Route;
@@ -23,6 +24,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/routines/{id}', [RoutineController::class, 'destroy']);
     Route::post('/routines/{id}/complete', [RoutineController::class, 'complete']);
     Route::post('/routines/{id}/uncomplete', [RoutineController::class, 'uncomplete']);
+    Route::get('/routines/{id}/messages', [RoutineMessageController::class, 'index']);
+    Route::put('/routines/{id}/messages', [RoutineMessageController::class, 'upsert']);
 
     Route::get('/inbox', [InboxController::class, 'index']);
     Route::post('/inbox', [InboxController::class, 'store']);

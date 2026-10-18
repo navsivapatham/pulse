@@ -13,7 +13,7 @@ class StatsController extends BaseApiController
 {
     public function daily(Request $request): JsonResponse
     {
-        $date = Carbon::parse($request->get('date', today()->toDateString()));
+        $date = Carbon::parse($request->get('date', Carbon::today(config('app.user_timezone'))->toDateString()));
         $userId = $request->user()->id;
 
         $activeRoutines = Routine::where('user_id', $userId)
@@ -53,7 +53,7 @@ class StatsController extends BaseApiController
     public function weekly(Request $request): JsonResponse
     {
         $userId = $request->user()->id;
-        $startOfWeek = Carbon::now()->startOfWeek();
+        $startOfWeek = Carbon::parse(Carbon::today(config('app.user_timezone'))->toDateString())->startOfWeek();
 
         $days = [];
         $period = CarbonPeriod::create($startOfWeek, $startOfWeek->copy()->endOfWeek());

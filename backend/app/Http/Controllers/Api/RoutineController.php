@@ -31,7 +31,7 @@ class RoutineController extends BaseApiController
 
         $routines = $query->get();
 
-        $date = $request->get('date', Carbon::today()->toDateString());
+        $date = Carbon::parse($request->get('date', Carbon::today(config('app.user_timezone'))->toDateString()))->toDateString();
 
         $completedIds = RoutineCompletion::where('user_id', $request->user()->id)
             ->where('completed_date', $date)
@@ -52,6 +52,7 @@ class RoutineController extends BaseApiController
             'description' => 'nullable|string',
             'cadence' => 'required|in:daily,weekly,monthly',
             'scheduled_time' => 'nullable|date_format:H:i',
+            'checkin_time' => 'nullable|date_format:H:i',
             'weekday' => 'nullable|integer|between:1,7',
             'month_day' => 'nullable|integer|between:1,28',
             'color' => 'nullable|string|max:7',
@@ -88,6 +89,7 @@ class RoutineController extends BaseApiController
             'description' => 'nullable|string',
             'cadence' => 'sometimes|in:daily,weekly,monthly',
             'scheduled_time' => 'nullable|date_format:H:i',
+            'checkin_time' => 'nullable|date_format:H:i',
             'weekday' => 'nullable|integer|between:1,7',
             'month_day' => 'nullable|integer|between:1,28',
             'is_active' => 'sometimes|boolean',
@@ -116,7 +118,7 @@ class RoutineController extends BaseApiController
     {
         $routine = Routine::where('user_id', $request->user()->id)->findOrFail($id);
 
-        $date = $request->get('date', Carbon::today()->toDateString());
+        $date = Carbon::parse($request->get('date', Carbon::today(config('app.user_timezone'))->toDateString()))->toDateString();
 
         RoutineCompletion::firstOrCreate(
             ['routine_id' => $routine->id, 'completed_date' => $date],
@@ -133,7 +135,7 @@ class RoutineController extends BaseApiController
     {
         $routine = Routine::where('user_id', $request->user()->id)->findOrFail($id);
 
-        $date = $request->get('date', Carbon::today()->toDateString());
+        $date = Carbon::parse($request->get('date', Carbon::today(config('app.user_timezone'))->toDateString()))->toDateString();
 
         RoutineCompletion::where('routine_id', $routine->id)
             ->where('completed_date', $date)
