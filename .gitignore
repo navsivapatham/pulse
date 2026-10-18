@@ -23,3 +23,6 @@ storage/*.key
 __pycache__/
 venv/
 .venv/
+
+# Deploy target (host details stay local)
+deploy.env

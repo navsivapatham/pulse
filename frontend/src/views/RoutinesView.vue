@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 import { useRoutinesStore, type Routine } from '@/stores/routines'
 import { Plus, Flame, Pencil, Trash2, X } from 'lucide-vue-next'
 
@@ -14,6 +14,8 @@ const form = ref({
   description: '',
   cadence: 'daily' as 'daily' | 'weekly' | 'monthly',
   scheduled_time: '' as string,
+  weekday: '' as string,
+  month_day: '' as string,
   color: '#6366F1',
 })
 
@@ -32,7 +34,15 @@ function formatTime(time: string | null): string {
 
 function openCreate() {
   editing.value = null
-  form.value = { title: '', description: '', cadence: 'daily', scheduled_time: '', color: '#6366F1' }
+  form.value = {
+    title: '',
+    description: '',
+    cadence: 'daily',
+    scheduled_time: '',
+    weekday: '',
+    month_day: '',
+    color: '#6366F1',
+  }
   showForm.value = true
 }
 
@@ -43,13 +53,20 @@ function openEdit(routine: Routine) {
     description: routine.description || '',
     cadence: routine.cadence,
     scheduled_time: routine.scheduled_time || '',
+    weekday: routine.weekday ? String(routine.weekday) : '',
+    month_day: routine.month_day ? String(routine.month_day) : '',
     color: routine.color || '#6366F1',
   }
   showForm.value = true
 }
 
 async function submit() {
-  const payload = { ...form.value, scheduled_time: form.value.scheduled_time || null }
+  const payload = {
+    ...form.value,
+    scheduled_time: form.value.scheduled_time || null,
+    weekday: form.value.cadence === 'weekly' && form.value.weekday ? Number(form.value.weekday) : null,
+    month_day: form.value.cadence === 'monthly' && form.value.month_day ? Number(form.value.month_day) : null,
+  }
   if (editing.value) {
     await store.update(editing.value.id, payload)
   } else {
@@ -66,6 +83,19 @@ async function toggleActive(routine: Routine) {
   await store.update(routine.id, { is_active: !routine.is_active })
 }
 
+watch(
+  () => form.value.cadence,
+  (cadence) => {
+    if (cadence === 'weekly' && !form.value.weekday) {
+      form.value.weekday = '1'
+    }
+
+    if (cadence === 'monthly' && !form.value.month_day) {
+      form.value.month_day = '1'
+    }
+  },
+)
+
 const tabs = [
   { key: 'all', label: 'All' },
   { key: 'daily', label: 'Daily' },
@@ -77,6 +107,37 @@ const cadenceBadgeColor: Record<string, string> = {
   daily: 'bg-blue-500/10 text-blue-500',
   weekly: 'bg-green-500/10 text-green-500',
   monthly: 'bg-purple-500/10 text-purple-500',
+}
+
+const weekdayOptions = [
+  { value: '1', label: 'Monday' },
+  { value: '2', label: 'Tuesday' },
+  { value: '3', label: 'Wednesday' },
+  { value: '4', label: 'Thursday' },
+  { value: '5', label: 'Friday' },
+  { value: '6', label: 'Saturday' },
+  { value: '7', label: 'Sunday' },
+]
+
+const monthlyDayOptions = Array.from({ length: 28 }, (_, idx) => String(idx + 1))
+
+function routineScheduleLabel(routine: Routine): string {
+  const parts: string[] = []
+
+  if (routine.cadence === 'weekly' && routine.weekday) {
+    const weekday = weekdayOptions.find((option) => option.value === String(routine.weekday))
+    if (weekday) parts.push(weekday.label)
+  }
+
+  if (routine.cadence === 'monthly' && routine.month_day) {
+    parts.push(`Day ${routine.month_day}`)
+  }
+
+  if (routine.scheduled_time) {
+    parts.push(formatTime(routine.scheduled_time))
+  }
+
+  return parts.join(' at ')
 }
 
 onMounted(() => store.fetch())
@@ -119,8 +180,8 @@ onMounted(() => store.fetch())
         <div class="flex-1 min-w-0">
           <p class="text-sm font-medium text-foreground truncate">{{ routine.title }}</p>
           <div class="flex items-center gap-2">
-            <p v-if="routine.scheduled_time" class="text-xs text-muted-foreground">{{ formatTime(routine.scheduled_time) }}</p>
-            <span v-if="routine.scheduled_time && routine.description" class="text-xs text-muted-foreground/40">·</span>
+            <p v-if="routineScheduleLabel(routine)" class="text-xs text-muted-foreground">{{ routineScheduleLabel(routine) }}</p>
+            <span v-if="routineScheduleLabel(routine) && routine.description" class="text-xs text-muted-foreground/40">·</span>
             <p v-if="routine.description" class="text-xs text-muted-foreground truncate">{{ routine.description }}</p>
           </div>
         </div>
@@ -173,6 +234,18 @@ onMounted(() => store.fetch())
             <div class="space-y-2 flex-1">
               <label class="text-sm font-medium text-foreground">Time</label>
               <input v-model="form.scheduled_time" type="time" class="w-full px-3 py-2 rounded-md border border-input bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
+            </div>
+            <div v-if="form.cadence === 'weekly'" class="space-y-2 flex-1">
+              <label class="text-sm font-medium text-foreground">Day</label>
+              <select v-model="form.weekday" required class="w-full px-3 py-2 rounded-md border border-input bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring">
+                <option v-for="day in weekdayOptions" :key="day.value" :value="day.value">{{ day.label }}</option>
+              </select>
+            </div>
+            <div v-if="form.cadence === 'monthly'" class="space-y-2 flex-1">
+              <label class="text-sm font-medium text-foreground">Day</label>
+              <select v-model="form.month_day" required class="w-full px-3 py-2 rounded-md border border-input bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring">
+                <option v-for="day in monthlyDayOptions" :key="day" :value="day">{{ day }}</option>
+              </select>
             </div>
             <div class="space-y-2">
               <label class="text-sm font-medium text-foreground">Color</label>

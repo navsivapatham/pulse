@@ -22,7 +22,7 @@ POLL_INTERVAL = int(os.getenv("POLL_INTERVAL", "900"))
 LOOKAHEAD = int(os.getenv("LOOKAHEAD_MINUTES", "45"))
 MSG_POLL = 3
 
-REMIND_TRIGGERS = {"remind", "reminder"}
+REMIND_TRIGGERS = {"remind", "reminder", "remind me","r","R"}
 
 _reminded = set()
 _current_date = None

@@ -19,6 +19,8 @@ class Routine extends Model
         'description',
         'cadence',
         'scheduled_time',
+        'weekday',
+        'month_day',
         'is_active',
         'sort_order',
         'color',
@@ -27,6 +29,8 @@ class Routine extends Model
 
     protected $casts = [
         'cadence' => Cadence::class,
+        'weekday' => 'integer',
+        'month_day' => 'integer',
         'is_active' => 'boolean',
     ];
 

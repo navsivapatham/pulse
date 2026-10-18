@@ -28,9 +28,9 @@ class DatabaseSeeder extends Seeder
             ['title' => 'Skincare routine', 'cadence' => 'daily', 'scheduled_time' => '08:00', 'color' => '#EC4899', 'icon' => 'sparkles'],
             ['title' => 'Read 30min', 'cadence' => 'daily', 'scheduled_time' => '21:00', 'color' => '#3B82F6', 'icon' => 'book-open'],
             ['title' => 'Journal', 'cadence' => 'daily', 'scheduled_time' => '21:30', 'color' => '#F59E0B', 'icon' => 'pen-line'],
-            ['title' => 'Plan the week', 'cadence' => 'weekly', 'scheduled_time' => '09:00', 'color' => '#10B981', 'icon' => 'calendar'],
-            ['title' => 'Weekly review', 'cadence' => 'weekly', 'scheduled_time' => '17:00', 'color' => '#6366F1', 'icon' => 'clipboard-check'],
-            ['title' => 'Monthly retro', 'cadence' => 'monthly', 'color' => '#14B8A6', 'icon' => 'bar-chart-3'],
+            ['title' => 'Plan the week', 'cadence' => 'weekly', 'weekday' => 1, 'scheduled_time' => '09:00', 'color' => '#10B981', 'icon' => 'calendar'],
+            ['title' => 'Weekly review', 'cadence' => 'weekly', 'weekday' => 5, 'scheduled_time' => '17:00', 'color' => '#6366F1', 'icon' => 'clipboard-check'],
+            ['title' => 'Monthly retro', 'cadence' => 'monthly', 'month_day' => 1, 'color' => '#14B8A6', 'icon' => 'bar-chart-3'],
         ];
 
         foreach ($routines as $i => $data) {

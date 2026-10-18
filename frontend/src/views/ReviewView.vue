@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 import { useInboxStore, type InboxItem } from '@/stores/inbox'
 import { Target, ListTodo, Eye, X, PartyPopper } from 'lucide-vue-next'
 
@@ -13,13 +13,29 @@ const convertType = ref<'routine' | 'task'>('routine')
 const formTitle = ref('')
 const formCadence = ref('daily')
 const formTime = ref('')
+const formWeekday = ref('')
+const formMonthDay = ref('')
 const processing = ref(false)
+
+const weekdayOptions = [
+  { value: '1', label: 'Monday' },
+  { value: '2', label: 'Tuesday' },
+  { value: '3', label: 'Wednesday' },
+  { value: '4', label: 'Thursday' },
+  { value: '5', label: 'Friday' },
+  { value: '6', label: 'Saturday' },
+  { value: '7', label: 'Sunday' },
+]
+
+const monthlyDayOptions = Array.from({ length: 28 }, (_, idx) => String(idx + 1))
 
 function startConvert(type: 'routine' | 'task') {
   convertType.value = type
   formTitle.value = current.value?.body?.slice(0, 80) ?? ''
   formCadence.value = 'daily'
   formTime.value = ''
+  formWeekday.value = ''
+  formMonthDay.value = ''
   showConvertForm.value = true
 }
 
@@ -32,6 +48,8 @@ async function submitConvert() {
         title: formTitle.value,
         cadence: formCadence.value,
         scheduled_time: formTime.value || null,
+        weekday: formCadence.value === 'weekly' && formWeekday.value ? Number(formWeekday.value) : null,
+        month_day: formCadence.value === 'monthly' && formMonthDay.value ? Number(formMonthDay.value) : null,
       })
     } else {
       await inboxStore.review(current.value.id, 'convert_task', {
@@ -72,6 +90,16 @@ function advance() {
     currentIndex.value = Math.max(0, pendingItems.value.length - 1)
   }
 }
+
+watch(formCadence, (cadence) => {
+  if (cadence === 'weekly' && !formWeekday.value) {
+    formWeekday.value = '1'
+  }
+
+  if (cadence === 'monthly' && !formMonthDay.value) {
+    formMonthDay.value = '1'
+  }
+})
 
 onMounted(() => inboxStore.fetch('pending'))
 </script>
@@ -127,6 +155,26 @@ onMounted(() => inboxStore.fetch('pending'))
               type="time"
               class="w-full px-3 py-2 rounded-md border border-input bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring"
             />
+          </div>
+          <div v-if="formCadence === 'weekly'" class="space-y-2 flex-1">
+            <label class="text-sm font-medium text-foreground">Day</label>
+            <select
+              v-model="formWeekday"
+              required
+              class="w-full px-3 py-2 rounded-md border border-input bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+            >
+              <option v-for="day in weekdayOptions" :key="day.value" :value="day.value">{{ day.label }}</option>
+            </select>
+          </div>
+          <div v-if="formCadence === 'monthly'" class="space-y-2 flex-1">
+            <label class="text-sm font-medium text-foreground">Day</label>
+            <select
+              v-model="formMonthDay"
+              required
+              class="w-full px-3 py-2 rounded-md border border-input bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+            >
+              <option v-for="day in monthlyDayOptions" :key="day" :value="day">{{ day }}</option>
+            </select>
           </div>
         </div>
         <div class="flex gap-2">

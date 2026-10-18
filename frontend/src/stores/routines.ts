@@ -8,6 +8,8 @@ export interface Routine {
   description: string | null
   cadence: 'daily' | 'weekly' | 'monthly'
   scheduled_time: string | null
+  weekday: number | null
+  month_day: number | null
   is_active: boolean
   sort_order: number
   color: string | null

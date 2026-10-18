@@ -8,6 +8,7 @@ use App\Services\StreakService;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 
 class RoutineController extends BaseApiController
 {
@@ -51,9 +52,13 @@ class RoutineController extends BaseApiController
             'description' => 'nullable|string',
             'cadence' => 'required|in:daily,weekly,monthly',
             'scheduled_time' => 'nullable|date_format:H:i',
+            'weekday' => 'nullable|integer|between:1,7',
+            'month_day' => 'nullable|integer|between:1,28',
             'color' => 'nullable|string|max:7',
             'icon' => 'nullable|string|max:50',
         ]);
+
+        $validated = $this->applyCadenceRules($validated, true);
 
         $routine = Routine::create([
             ...$validated,
@@ -83,11 +88,15 @@ class RoutineController extends BaseApiController
             'description' => 'nullable|string',
             'cadence' => 'sometimes|in:daily,weekly,monthly',
             'scheduled_time' => 'nullable|date_format:H:i',
+            'weekday' => 'nullable|integer|between:1,7',
+            'month_day' => 'nullable|integer|between:1,28',
             'is_active' => 'sometimes|boolean',
             'sort_order' => 'sometimes|integer',
             'color' => 'nullable|string|max:7',
             'icon' => 'nullable|string|max:50',
         ]);
+
+        $validated = $this->applyCadenceRules($validated, false, $routine);
 
         $routine->update($validated);
         $routine->load('streak');
@@ -134,5 +143,50 @@ class RoutineController extends BaseApiController
         $routine->load('streak');
 
         return $this->success($routine, 'Completion removed');
+    }
+
+    private function applyCadenceRules(array $validated, bool $isCreate, ?Routine $routine = null): array
+    {
+        $cadence = $validated['cadence'] ?? ($routine?->cadence?->value ?? null);
+
+        if (!$cadence) {
+            return $validated;
+        }
+
+        $hasCadenceFields = array_key_exists('cadence', $validated)
+            || array_key_exists('weekday', $validated)
+            || array_key_exists('month_day', $validated);
+
+        if (!$isCreate && !$hasCadenceFields) {
+            return $validated;
+        }
+
+        $weekday = $validated['weekday'] ?? $routine?->weekday;
+        $monthDay = $validated['month_day'] ?? $routine?->month_day;
+
+        if ($cadence === 'weekly' && !$weekday) {
+            throw ValidationException::withMessages([
+                'weekday' => 'Please choose a day of the week for weekly routines.',
+            ]);
+        }
+
+        if ($cadence === 'monthly' && !$monthDay) {
+            throw ValidationException::withMessages([
+                'month_day' => 'Please choose a day of the month (1-28) for monthly routines.',
+            ]);
+        }
+
+        if ($cadence === 'daily') {
+            $validated['weekday'] = null;
+            $validated['month_day'] = null;
+        } elseif ($cadence === 'weekly') {
+            $validated['weekday'] = (int) $weekday;
+            $validated['month_day'] = null;
+        } elseif ($cadence === 'monthly') {
+            $validated['month_day'] = (int) $monthDay;
+            $validated['weekday'] = null;
+        }
+
+        return $validated;
     }
 }
